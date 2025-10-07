@@ -1,20 +1,21 @@
-<!acid-base and shock html>
+<index html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>100-Question Acid-Base & Shock Master Quiz (Instant Feedback)</title>
+    <title>50-Question Burn Injury Master Quiz (Instant Feedback)</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Custom styles for the app */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f9ff; /* Light, calming blue background */
+            background-color: #fef2f2; /* Light, warm red background */
         }
         /* Style for the question options (radio buttons) */
         .option-label input[type="radio"]:checked + span {
-            border-color: #0ea5e9; /* Sky blue border when selected */
+            border-color: #ef4444; /* Red border when selected */
+            background-color: #fee2e2;
         }
         .correct-answer {
             background-color: #d1fae5; /* Light green for correct */
@@ -35,12 +36,12 @@
     <div id="quiz-container" class="w-full max-w-4xl bg-white shadow-2xl rounded-xl p-6 sm:p-10 my-8">
         <!-- Title and Introduction (Sticky Header) -->
         <header class="mb-8 text-center border-b pb-4 sticky top-0 bg-white z-10 rounded-t-xl shadow-lg p-4">
-            <h1 class="text-3xl font-extrabold text-blue-700">Acid-Base Balance & Shock Master Challenge</h1>
-            <p class="mt-2 text-gray-600">100 questions with instant feedback on critical concepts.</p>
-            
+            <h1 class="text-3xl font-extrabold text-red-700">Burn Injury Master Challenge</h1>
+            <p class="mt-2 text-gray-600">50 questions on depth, extent, resuscitation, and care.</p>
+
             <!-- Instant Score Display -->
             <div class="mt-4 text-xl font-bold">
-                Score: <span id="current-score" class="text-blue-600">0</span> / 100
+                Score: <span id="current-score" class="text-red-600">0</span> / 50
             </div>
         </header>
 
@@ -52,7 +53,7 @@
         <!-- Final Results Button -->
         <div class="flex justify-center sticky bottom-0 bg-white p-4 border-t border-gray-200 rounded-b-xl shadow-lg">
             <button id="submit-btn" type="button" onclick="displayFinalResults()"
-                    class="w-full sm:w-auto px-10 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition duration-300 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-indigo-300 active:bg-indigo-800">
+                    class="w-full sm:w-auto px-10 py-3 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition duration-300 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-red-300 active:bg-red-800">
                 Show Final Results
             </button>
         </div>
@@ -75,121 +76,65 @@
     <script>
         // Global state for instant scoring
         let currentScore = 0;
-        const totalQuestions = 100;
+        const totalQuestions = 50;
         let answeredQuestions = new Set();
-        
+
         const quizData = [
-            // --- SECTION 1: ACID-BASE BASICS & BUFFERS (10 Q) ---
-            { q: "1. What is the normal blood pH range?", ans: "7.35-7.45" },
-            { q: "2. What are substances that release hydrogen ions (H+) called?", ans: "Acids" },
-            { q: "3. What is the main base in the body, primarily regulated by the kidneys?", ans: "Bicarbonate (HCO3-)" },
-            { q: "4. Which body system is the first line of defense and acts immediately to prevent major pH changes?", ans: "Buffer Systems" },
-            { q: "5. What is the critical ratio of Bicarbonate to Carbonic Acid maintained by the buffer system?", ans: "20:1" },
-            { q: "6. Which organ system acts as the second line of defense and regulates CO2 within minutes?", ans: "Lungs" },
-            { q: "7. When the lungs sense acidosis, how do they attempt to compensate?", ans: "Increase respiratory rate (hyperventilation)" },
-            { q: "8. Which organ system acts as the third line of defense, taking hours to days to regulate HCO3-?", ans: "Kidneys" },
-            { q: "9. How do the kidneys primarily respond to alkalosis to restore balance?", ans: "Excrete HCO3- and retain H+" },
-            { q: "10. What is the relationship between CO2 (an acid) and pH?", ans: "Inverse (as CO2 increases, pH decreases)" },
+            // --- SECTION 1: CLASSIFICATION BY DEPTH (10 Q) ---
+            { q: "1. Which key feature is characteristic of a Full-Thickness burn related to sensation?", ans: "Painless (due to nerve destruction)" },
+            { q: "2. A burn that involves the epidermis and only the upper dermis is classified as:", ans: "Superficial partial-thickness" },
+            { q: "3. Which classification requires skin grafting for healing?", ans: "Full-thickness" },
+            { q: "4. What is the typical healing time for a Superficial partial-thickness burn?", ans: "~2 weeks" },
+            { q: "5. A burn described as red/white with less blanching, involving the epidermis and deeper dermis, is classified as:", ans: "Deep partial-thickness" },
+            { q: "6. What are two tissue types that may be involved in a severe Full-Thickness burn?", ans: "Muscle and Bone" },
+            { q: "7. The appearance of a Full-Thickness burn is typically:", ans: "Dry, leathery, and white or charred" },
+            { q: "8. A painful, red, and blanching burn that heals quickly is most likely a:", ans: "Superficial partial-thickness" },
+            { q: "9. Which layer contains the pain receptors destroyed in a full-thickness injury?", ans: "Dermis" },
+            { q: "10. What does the term 'Full-Thickness' imply about the skin layers involved?", ans: "Entire epidermis and dermis" },
 
-            // --- SECTION 2: RESPIRATORY ACIDOSIS/ALKALOSIS (20 Q) ---
-            { q: "11. Respiratory Acidosis is primarily characterized by retention of which gas?", ans: "CO2" },
-            { q: "12. What is the primary cause of Respiratory Acidosis?", ans: "Hypoventilation" },
-            { q: "13. What is a key sign of early Respiratory Acidosis?", ans: "Headache (due to cerebral vasodilation)" },
-            { q: "14. A patient with COPD experiencing an exacerbation is at high risk for which imbalance?", ans: "Respiratory Acidosis" },
-            { q: "15. What is the most critical intervention for severe Respiratory Acidosis?", ans: "Improve ventilation (e.g., BiPAP/intubation)" },
-            { q: "16. Respiratory Alkalosis is primarily characterized by excessive loss of which gas?", ans: "CO2" },
-            { q: "17. What is the primary cause of Respiratory Alkalosis?", ans: "Hyperventilation" },
-            { q: "18. A common psychological cause of Respiratory Alkalosis is:", ans: "Anxiety/Panic attacks" },
-            { q: "19. What neurological symptom is common in Respiratory Alkalosis due to cerebral vasoconstriction?", ans: "Lightheadedness/Dizziness" },
-            { q: "20. What is a common neuromuscular sign of Respiratory Alkalosis?", ans: "Tetany/Numbness and tingling" },
-            { q: "21. What is the management goal for a patient hyperventilating due to anxiety?", ans: "Slow breathing rate (e.g., breath into a paper bag)" },
-            { q: "22. A patient on mechanical ventilation is over-breathing. This places them at risk for:", ans: "Respiratory Alkalosis" },
-            { q: "23. What happens to the partial pressure of CO2 (PaCO2) in Respiratory Alkalosis?", ans: "Decreases (below 35 mmHg)" },
-            { q: "24. What happens to PaCO2 in Respiratory Acidosis?", ans: "Increases (above 45 mmHg)" },
-            { q: "25. When the kidneys attempt to compensate for respiratory acidosis, they retain:", ans: "Bicarbonate (HCO3-)" },
-            { q: "26. What drug class can suppress the respiratory drive and lead to respiratory acidosis?", ans: "Opioids (Narcotics)" },
-            { q: "27. What is the most common cause of acute Respiratory Acidosis in a hospital setting?", ans: "Airway obstruction" },
-            { q: "28. In chronic Respiratory Acidosis, the body is usually compensated by which organ?", ans: "Kidneys" },
-            { q: "29. What is the classic respiratory pattern seen in severe Metabolic Acidosis, but not in Respiratory Acidosis?", ans: "Kussmaul respirations" },
-            { q: "30. High fever, liver failure, and severe pain can sometimes lead to:", ans: "Respiratory Alkalosis" },
-            
-            // --- SECTION 3: METABOLIC ACIDOSIS/ALKALOSIS (20 Q) ---
-            { q: "31. Metabolic Acidosis is characterized by a deficit of base or an excess of:", ans: "Acid" },
-            { q: "32. What happens to the serum HCO3- in Metabolic Acidosis?", ans: "Decreases (below 22 mEq/L)" },
-            { q: "33. What are two major causes of high Anion Gap Metabolic Acidosis (MUDPILES)?", ans: "Lactic Acidosis or Ketoacidosis" },
-            { q: "34. What is the compensatory mechanism for Metabolic Acidosis?", ans: "Kussmaul respirations (deep, rapid breathing)" },
-            { q: "35. A patient with chronic kidney disease (CKD) is at high risk for:", ans: "Metabolic Acidosis" },
-            { q: "36. What is the priority intervention for severe Metabolic Acidosis?", ans: "Administer NaHCO3 (Bicarbonate)" },
-            { q: "37. A severe side effect of Metabolic Acidosis is the risk of:", ans: "Dysrhythmias/Cardiac arrest" },
-            { q: "38. Metabolic Alkalosis is characterized by an excess of base or a deficit of:", ans: "Acid" },
-            { q: "39. What happens to the serum HCO3- in Metabolic Alkalosis?", ans: "Increases (above 28 mEq/L)" },
-            { q: "40. What common GI issue is a major cause of Metabolic Alkalosis?", ans: "Vomiting or NG suction (loss of HCl)" },
-            { q: "41. What is the compensatory mechanism for Metabolic Alkalosis?", ans: "Hypoventilation (slow, shallow breathing)" },
-            { q: "42. Over-use of which common over-the-counter drugs can cause Metabolic Alkalosis?", ans: "Antacids/Bicarbonate" },
-            { q: "43. A key management strategy for Metabolic Alkalosis caused by volume loss is:", ans: "Administer NaCl/Volume replacement" },
-            { q: "44. In severe Metabolic Alkalosis, which electrolyte imbalance can cause neurological symptoms like tetany?", ans: "Hypocalcemia" },
-            { q: "45. In severe Metabolic Acidosis, what happens to the K+ level?", ans: "Hyperkalemia (K+ shifts out of cells)" },
-            { q: "46. Which type of shock is often accompanied by profound Metabolic Acidosis?", ans: "Septic/Cardiogenic Shock" },
-            { q: "47. What condition is associated with severe diarrhea and often results in Metabolic Acidosis?", ans: "Loss of Bicarbonate from the GI tract" },
-            { q: "48. The main effect of compensatory hypoventilation in Metabolic Alkalosis is to retain:", ans: "CO2" },
-            { q: "49. What is the primary concern when administering NaHCO3 (bicarbonate)?", ans: "Fluid volume overload/Heart failure" },
-            { q: "50. What is the renal compensation mechanism for Metabolic Alkalosis?", ans: "Excrete HCO3-" },
+            // --- SECTION 2: EXTENT & PATHOPHYSIOLOGY (20 Q) ---
+            { q: "11. A systemic response to burn injury occurs when the Total Body Surface Area (TBSA) burned exceeds:", ans: "20% TBSA" },
+            { q: "12. What is the preferred method for estimating TBSA in infants and children due to age-related proportions?", ans: "Lund-Browder Chart" },
+            { q: "13. The Palmar method, used for scattered burns, estimates the patient's palm surface area as approximately what percentage of TBSA?", ans: "1% TBSA" },
+            { q: "14. What is the primary pathophysiologic event leading to burn shock?", ans: "Massive fluid loss and capillary leak" },
+            { q: "15. Which electrolyte imbalance is seen immediately after a major burn injury due to cell lysis?", ans: "Early hyperkalemia" },
+            { q: "16. Which electrolyte imbalance is often seen later in the acute phase due to massive fluid shifting and dilution?", ans: "Hyponatremia" },
+            { q: "17. In the Rule of Nines for adults, what percentage is assigned to the entire anterior trunk (chest and abdomen)?", ans: "18%" },
+            { q: "18. In the Rule of Nines for adults, what percentage is assigned to one entire arm (front and back)?", ans: "9%" },
+            { q: "19. What critical consequence does the loss of skin integrity pose for thermoregulation?", ans: "Hypothermia" },
+            { q: "20. What happens to the Cardiac Output (CO) during the initial phase of burn shock?", ans: "Decreases (Hypovolemia)" },
+            { q: "21. The release of which substances causes massive capillary leak and edema in systemic burn injury?", ans: "Cytokines and inflammatory mediators" },
+            { q: "22. The entire head and neck of an adult is assigned what percentage in the Rule of Nines?", ans: "9%" },
+            { q: "23. The total TBSA for the entire anterior and posterior trunk combined in the Rule of Nines is:", ans: "36%" },
+            { q: "24. What common GI complication is associated with decreased perfusion to the abdominal organs in severe burn shock?", ans: "Paralytic ileus" },
+            { q: "25. Which type of burn injury is often caused by exposure to electrical current?", ans: "Full-thickness (potentially involving deep tissue)" },
+            { q: "26. What is the primary underlying cause of the risk of infection in burn patients?", ans: "Loss of the skin's protective barrier" },
+            { q: "27. In the acute phase, the swelling caused by fluid moving from the intravascular space to the interstitial space is termed:", ans: "Edema" },
+            { q: "28. The risk of shock is most significant in burns affecting greater than:", ans: "20% TBSA" },
+            { q: "29. Why is the early hyperkalemia a critical concern?", ans: "Risk of cardiac dysrhythmias" },
+            { q: "30. The body's initial response to burns $<20\%$ TBSA is described as a:", ans: "Local response" },
 
-            // --- SECTION 4: COMPENSATION & DIAGNOSIS (10 Q) ---
-            { q: "51. What term describes a pH that is abnormal, but the compensating system's parameter (PaCO2 or HCO3-) is also abnormal?", ans: "Partially Compensated" },
-            { q: "52. What term describes a pH that is within the normal range (7.35-7.45) but both PaCO2 and HCO3- are abnormal?", ans: "Fully Compensated" },
-            { q: "53. If the primary problem is respiratory, the compensation must be done by which organ?", ans: "Kidneys" },
-            { q: "54. If the primary problem is metabolic, the compensation must be done by which organ?", ans: "Lungs" },
-            { q: "55. If a patient has an elevated PaCO2 and an elevated HCO3-, this indicates which primary problem?", ans: "Respiratory Acidosis" },
-            { q: "56. If a patient has a decreased PaCO2 and a decreased HCO3-, this indicates which primary problem?", ans: "Metabolic Acidosis" },
-            { q: "57. If the pH is < 7.35, the patient is in a state of:", ans: "Acidosis" },
-            { q: "58. If the pH is > 7.45, the patient is in a state of:", ans: "Alkalosis" },
-            { q: "59. What term describes a state where the pH is abnormal and the compensating system is still normal?", ans: "Uncompensated" },
-            { q: "60. Which is the fastest-acting compensatory system?", ans: "Lungs" },
-
-            // --- SECTION 5: SHOCK CLASSIFICATION & SIGNS (20 Q) ---
-            { q: "61. What is the fundamental definition of shock?", ans: "Insufficient tissue perfusion" },
-            { q: "62. What is the characteristic sign shared by all types of shock?", ans: "Hypotension (Systolic BP < 90 mmHg)" },
-            { q: "63. Which major category of shock is caused by failure of the heart to pump effectively?", ans: "Cardiogenic Shock" },
-            { q: "64. Which major category of shock is caused by loss of intravascular volume (blood or fluid)?", ans: "Hypovolemic Shock" },
-            { q: "65. Which major category of shock is caused by an obstruction to blood flow (e.g., PE, tamponade)?", ans: "Obstructive Shock" },
-            { q: "66. Which major category of shock is characterized by massive vasodilation leading to maldistribution of blood flow?", ans: "Distributive Shock" },
-            { q: "67. Which type of Distributive Shock is caused by a severe allergic reaction?", ans: "Anaphylactic Shock" },
-            { q: "68. Which type of Distributive Shock is caused by a spinal cord injury or head trauma?", ans: "Neurogenic Shock" },
-            { q: "69. Which type of Distributive Shock is caused by a massive infection?", ans: "Septic Shock" },
-            { q: "70. In Hypovolemic Shock, what happens to the patient's Heart Rate (HR)?", ans: "Increases (Tachycardia)" },
-            { q: "71. In Neurogenic Shock, the patient often exhibits which specific HR pattern?", ans: "Bradycardia (Slow HR)" },
-            { q: "72. Which type of shock causes the skin to initially be warm and flushed?", ans: "Septic Shock (Early phase)" },
-            { q: "73. What happens to the Central Venous Pressure (CVP) in Hypovolemic Shock?", ans: "Decreases (Low CVP)" },
-            { q: "74. What is the primary problem in Cardiogenic Shock?", ans: "Decreased Cardiac Output (CO)" },
-            { q: "75. A patient presenting with muffled heart sounds, hypotension, and JVD likely has which obstructive problem?", ans: "Cardiac Tamponade" },
-            { q: "76. What is the earliest reversible stage of shock?", ans: "Compensatory Stage" },
-            { q: "77. During the Compensatory Stage, the body releases which hormones to increase HR and BP?", ans: "Norepinephrine/Epinephrine" },
-            { q: "78. What is the irreversible stage of shock where all organ systems fail?", ans: "Refractory Stage" },
-            { q: "79. In the Progressive Stage of shock, mental status typically declines into:", ans: "Lethargy/Deterioration" },
-            { q: "80. What is the result of insufficient tissue perfusion in shock on a cellular level?", ans: "Anaerobic metabolism and lactic acid production" },
-
-            // --- SECTION 6: SHOCK MANAGEMENT & INTERVENTIONS (20 Q) ---
-            { q: "81. What is the absolute priority when caring for a patient in shock?", ans: "Airway, Breathing, Circulation (ABCs)" },
-            { q: "82. What is the primary treatment for Hypovolemic Shock?", ans: "IV fluids (Crystalloids) and Blood transfusion" },
-            { q: "83. For Septic Shock, what is the priority intervention after obtaining blood cultures?", ans: "Start broad-spectrum antibiotics" },
-            { q: "84. Which medication is the immediate, life-saving intervention for Anaphylactic Shock?", ans: "IM Epinephrine" },
-            { q: "85. In Cardiogenic Shock, which class of drugs is often used to improve contractility?", ans: "Inotropes" },
-            { q: "86. Which type of shock requires stabilizing the spinal cord as a priority?", ans: "Neurogenic Shock" },
-            { q: "87. What is the goal urine output for a patient being aggressively managed for shock?", ans: "> 0.5 mL/kg/hr" },
-            { q: "88. What is a common GI complication of shock due to mucosal ischemia?", ans: "Paralytic ileus/Risk of ulcers/bleeding" },
-            { q: "89. The goal in treating Obstructive Shock is to:", ans: "Relieve the obstruction" },
-            { q: "90. Why do patients in shock develop Metabolic Acidosis?", ans: "Lactic acid buildup from anaerobic metabolism" },
-            { q: "91. What is a key sign of the early Compensatory Stage that indicates a need for intervention?", ans: "Tachycardia" },
-            { q: "92. What is the major fluid replacement type used in the initial management of most shock states?", ans: "Crystalloids (Normal Saline or Lactated Ringer's)" },
-            { q: "93. Which vasopressor is commonly used to treat hypotension in Septic Shock?", ans: "Norepinephrine" },
-            { q: "94. Which specific shock type is often treated with Atropine due to severe bradycardia?", ans: "Neurogenic Shock" },
-            { q: "95. During the Compensatory Stage, the body attempts to shunt blood away from which organs?", ans: "GI tract, Kidneys, Skin" },
-            { q: "96. What is the primary difference in skin temperature between early Septic Shock and Hypovolemic Shock?", ans: "Septic is warm/flushed; Hypovolemic is cool/clammy" },
-            { q: "97. What is a key assessment finding for a patient in the Progressive Stage related to kidney function?", ans: "Oliguria (low urine output)" },
-            { q: "98. Which intervention is crucial for all types of shock to maximize oxygen delivery?", ans: "High-flow oxygen" },
-            { q: "99. In Cardiogenic Shock, why are diuretics sometimes used?", ans: "To reduce preload/volume in the lungs" },
-            { q: "100. What is the main cause of the life-threatening hypotension in Neurogenic Shock?", ans: "Loss of sympathetic vasoconstrictor tone" }
+            // --- SECTION 3: FLUID RESUSCITATION & MANAGEMENT (20 Q) ---
+            { q: "31. Which formula is most commonly used to calculate fluid resuscitation needs in adults with greater than 20% TBSA burns?", ans: "Parkland (Baxter) Formula" },
+            { q: "32. What is the preferred fluid (crystalloid) used in the Parkland formula for burn resuscitation?", ans: "Lactated Ringer's (LR)" },
+            { q: "33. What is the constant (in mL/kg/%TBSA) used in the Parkland formula?", ans: "4 mL" },
+            { q: "34. How much of the calculated total 24-hour fluid volume must be administered in the first 8 hours post-burn?", ans: "One-half (1/2) of the total volume" },
+            { q: "35. The remaining half of the fluid volume is administered over the next how many hours?", ans: "16 hours" },
+            { q: "36. What is the critical end-point (clinical indicator) of successful fluid resuscitation?", ans: "Adequate Urine Output (UO)" },
+            { q: "37. What is the minimum acceptable hourly urine output (UO) goal for an adult burn patient during the resuscitation phase?", ans: "0.5 mL/kg/hr" },
+            { q: "38. What is the most critical immediate assessment for a patient who sustained a burn to the face, neck, or chest?", ans: "Airway and breathing assessment" },
+            { q: "39. Why are colloids (like albumin) typically avoided in the first 12-24 hours of burn resuscitation?", ans: "Capillaries are still leaking, leading to colloid loss into the interstitium" },
+            { q: "40. In the emergent phase of care, what is the primary nursing goal related to the wounds?", ans: "Covering the burn wound with a clean, dry sheet" },
+            { q: "41. What is the immediate intervention for a chemical burn?", ans: "Continuous copious irrigation with water" },
+            { q: "42. What is the long-term complication often associated with Full-Thickness burns that heal (or are grafted)?", ans: "Scarring and contractures" },
+            { q: "43. Why is it important to monitor blood glucose levels in major burn patients?", ans: "Increased metabolic demands and stress hormones can cause hyperglycemia" },
+            { q: "44. The priority management for circumferential full-thickness burns on an extremity is the risk of:", ans: "Compartment Syndrome" },
+            { q: "45. What nutritional state is induced by the hypermetabolic response after a major burn?", ans: "Catabolic state (protein breakdown)" },
+            { q: "46. What type of burn is caused by radiation (e.g., prolonged sun exposure or cancer therapy)?", ans: "Superficial or Superficial partial-thickness" },
+            { q: "47. Which procedure is performed to relieve pressure and restore circulation in circumferential deep burns?", ans: "Escharotomy" },
+            { q: "48. What is the primary concern when managing a patient with early hypothermia?", ans: "Warming the patient and preventing further heat loss" },
+            { q: "49. In the acute phase, aggressive nutrition (enteral feeding) is initiated to meet the patient's heightened:", ans: "Metabolic demands" },
+            { q: "50. What is a key psychological complication that may require long-term support for the patient?", ans: "Altered appearance/Body image issues" }
         ];
 
         const quizForm = document.getElementById('quiz-form');
@@ -205,22 +150,18 @@
          */
         function generateOptions(correctAnswer) {
             const allPossibleAnswers = [
-                "7.35-7.45", "6.50-7.00", "7.00-7.35", "Acids", "Bases", "Buffers", "Bicarbonate (HCO3-)", "Carbonic Acid (H2CO3)",
-                "Buffer Systems", "Lungs", "Kidneys", "Liver", "20:1", "10:1", "Increase respiratory rate (hyperventilation)", "Decrease respiratory rate (hypoventilation)",
-                "Hypoventilation", "Hyperventilation", "CO2", "O2", "Headache (due to cerebral vasodilation)", "Tetany/Numbness and tingling",
-                "Opioids (Narcotics)", "Diuretics", "Airway obstruction", "Pneumonia", "Kussmaul respirations", "Cheyne-Stokes respirations",
-                "Metabolic Acidosis", "Respiratory Acidosis", "Metabolic Alkalosis", "Respiratory Alkalosis", "Acid", "Base",
-                "Lactic Acidosis or Ketoacidosis", "Hypercalcemia", "Administer NaHCO3 (Bicarbonate)", "Administer Hypertonic Saline",
-                "Dysrhythmias/Cardiac arrest", "Hypocalcemia", "Vomiting or NG suction (loss of HCl)", "Diarrhea", "Antacids/Bicarbonate",
-                "Administer NaCl/Volume replacement", "Hyperkalemia (K+ shifts out of cells)", "Fluid volume overload/Heart failure",
-                "Uncompensated", "Partially Compensated", "Fully Compensated", "Lungs", "Kidneys",
-                "Insufficient tissue perfusion", "Tachycardia (HR < 60)", "Hypotension (Systolic BP < 90 mmHg)",
-                "Cardiogenic Shock", "Hypovolemic Shock", "Obstructive Shock", "Distributive Shock", "Anaphylactic Shock", "Neurogenic Shock", "Septic Shock",
-                "Increases (Tachycardia)", "Bradycardia (Slow HR)", "Septic Shock (Early phase)", "Hypovolemic Shock (Early phase)",
-                "Compensatory Stage", "Progressive Stage", "Refractory Stage", "Norepinephrine/Epinephrine", "Glucocorticoids/Mineralocorticoids",
-                "Airway, Breathing, Circulation (ABCs)", "IV fluids (Crystalloids) and Blood transfusion", "Start broad-spectrum antibiotics", "IM Epinephrine", "Inotropes",
-                "> 0.5 mL/kg/hr", "Paralytic ileus/Risk of ulcers/bleeding", "Relieve the obstruction", "Lactic acid buildup from anaerobic metabolism",
-                "Crystalloids (Normal Saline or Lactated Ringer's)", "Norepinephrine", "Atropine", "Loss of sympathetic vasoconstrictor tone"
+                "Painless (due to nerve destruction)", "Very painful (exposed nerve endings)", "Superficial partial-thickness", "Deep partial-thickness", 
+                "Full-thickness", "Topical antibiotic cream", "Skin grafting", "Bandaging", "20% TBSA", "50% TBSA", 
+                "Rule of Nines", "Lund-Browder Chart", "Palmar method", "5% TBSA", "1% TBSA", 
+                "Massive fluid loss and capillary leak", "Severe infection", "Early hyperkalemia", "Early hypokalemia", "Hyponatremia", 
+                "Hypercalcemia", "Lactated Ringer's (LR)", "Dextrose 5% in Water (D5W)", "Normal Saline (NS)", "One-half (1/2) of the total volume", 
+                "The entire volume", "24 hours", "48 hours", "Decreases (Hypovolemia)", "Increases (Hyperdynamic)", 
+                "Dry, leathery, and white or charred", "Red, painful, and wet", "18%", "9%", "1%", "Hypothermia", "Hyperthermia",
+                "Edema", "Vasoconstriction", "Dermis", "Epidermis", "2 weeks", "6 weeks", 
+                "Airway and breathing assessment", "IV insertion", "Compartment Syndrome", "Risk of infection", 
+                "4 mL", "2 mL", "0.5 mL/kg/hr", "1 mL/kg/hr", "Continuous copious irrigation with water", "Neutralizing agent application",
+                "Muscle and Bone", "Scarring and contractures", "Hypermetabolic demands", "Catabolic state (protein breakdown)",
+                "Escharotomy", "Fasciotomy", "Cytokines and inflammatory mediators", "Mast cell stabilizers"
             ];
 
             let options = new Set();
@@ -231,7 +172,7 @@
                 const randomIndex = Math.floor(Math.random() * allPossibleAnswers.length);
                 const potentialOption = allPossibleAnswers[randomIndex];
                 // Only add if it's not the correct answer AND not already in the set
-                if (!options.has(potentialOption)) { 
+                if (!options.has(potentialOption)) {
                     options.add(potentialOption);
                 }
             }
@@ -268,7 +209,7 @@
                 if (optionValue === correct) {
                     span.classList.add('correct-answer');
                 }
-                
+
                 // Highlight the selected answer if it's wrong
                 if (optionValue === selectedValue && !isCorrect) {
                     span.classList.add('wrong-answer');
@@ -283,7 +224,7 @@
                 currentScore++;
             }
             answeredQuestions.add(qIndex);
-            
+
             // 4. Update score display
             scoreDisplayElement.textContent = currentScore;
         }
@@ -316,7 +257,7 @@
                     // Added onchange handler to call checkAnswer instantly
                     html += `
                         <label for="${radioId}" class="option-label flex items-center cursor-pointer">
-                            <input type="radio" id="${radioId}" name="question${index}" value="${option}" class="hidden" 
+                            <input type="radio" id="${radioId}" name="question${index}" value="${option}" class="hidden"
                                 onchange="checkAnswer(${index}, this.value)">
                             <span class="flex-grow p-2 border-2 border-gray-300 rounded-md transition duration-150 text-gray-700 hover:bg-gray-50">
                                 ${option}
@@ -352,16 +293,16 @@
             } else {
                 incompleteMessage.classList.add('hidden');
             }
-            
+
             let feedbackMessage = '';
             if (percentage >= 90) {
                 feedbackMessage = `<span class="text-green-600 font-bold">MASTERED! 💯</span> You finished with ${currentScore} out of ${totalQuestions} (${percentage}%). Excellent performance!`;
             } else if (percentage >= 70) {
-                feedbackMessage = `<span class="text-amber-600 font-bold">Solid Effort! 💪</span> You finished with ${currentScore} out of ${totalQuestions} (${percentage}%). You're very close!`;
+                feedbackMessage = `<span class="text-amber-600 font-bold">Solid Effort! 💪</span> You finished with ${currentScore} out of ${totalQuestions} (${percentage}%). You've covered the critical ground!`;
             } else {
-                feedbackMessage = `<span class="text-red-600 font-bold">Needs Review! 📚</span> You finished with ${currentScore} out of ${totalQuestions} (${percentage}%). Let's go over the material again.`;
+                feedbackMessage = `<span class="text-red-600 font-bold">Needs Review! 📚</span> You finished with ${currentScore} out of ${totalQuestions} (${percentage}%). Focus on the core concepts again.`;
             }
-            
+
             scoreFinalDisplay.innerHTML = feedbackMessage;
             resultsArea.classList.remove('hidden');
             // Scroll to the results area
