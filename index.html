@@ -1,0 +1,384 @@
+<!acid-base and shock html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100-Question Acid-Base & Shock Master Quiz (Instant Feedback)</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the app */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f9ff; /* Light, calming blue background */
+        }
+        /* Style for the question options (radio buttons) */
+        .option-label input[type="radio"]:checked + span {
+            border-color: #0ea5e9; /* Sky blue border when selected */
+        }
+        .correct-answer {
+            background-color: #d1fae5; /* Light green for correct */
+            border-color: #10b981 !important;
+            font-weight: 600;
+        }
+        .wrong-answer {
+            background-color: #fee2e2; /* Light red for incorrect */
+            border-color: #ef4444 !important;
+        }
+        .question-block {
+            scroll-margin-top: 120px; /* Offset for smooth scrolling */
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-8 flex justify-center items-start">
+
+    <div id="quiz-container" class="w-full max-w-4xl bg-white shadow-2xl rounded-xl p-6 sm:p-10 my-8">
+        <!-- Title and Introduction (Sticky Header) -->
+        <header class="mb-8 text-center border-b pb-4 sticky top-0 bg-white z-10 rounded-t-xl shadow-lg p-4">
+            <h1 class="text-3xl font-extrabold text-blue-700">Acid-Base Balance & Shock Master Challenge</h1>
+            <p class="mt-2 text-gray-600">100 questions with instant feedback on critical concepts.</p>
+            
+            <!-- Instant Score Display -->
+            <div class="mt-4 text-xl font-bold">
+                Score: <span id="current-score" class="text-blue-600">0</span> / 100
+            </div>
+        </header>
+
+        <!-- Quiz Questions Area -->
+        <form id="quiz-form" class="space-y-4 mb-8">
+            <!-- Questions will be rendered here by JavaScript -->
+        </form>
+
+        <!-- Final Results Button -->
+        <div class="flex justify-center sticky bottom-0 bg-white p-4 border-t border-gray-200 rounded-b-xl shadow-lg">
+            <button id="submit-btn" type="button" onclick="displayFinalResults()"
+                    class="w-full sm:w-auto px-10 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition duration-300 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-indigo-300 active:bg-indigo-800">
+                Show Final Results
+            </button>
+        </div>
+
+        <!-- Feedback and Results Area -->
+        <div id="results-area" class="mt-8 pt-6 border-t border-gray-200 hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Final Results Summary</h2>
+            <p id="score-display" class="text-center text-xl font-semibold mb-6"></p>
+
+            <div class="flex justify-center">
+                <button onclick="resetQuiz()"
+                        class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
+                    Start New Quiz
+                </button>
+            </div>
+            <p id="incomplete-message" class="text-center text-red-500 mt-4 hidden">You still have questions unanswered!</p>
+        </div>
+    </div>
+
+    <script>
+        // Global state for instant scoring
+        let currentScore = 0;
+        const totalQuestions = 100;
+        let answeredQuestions = new Set();
+        
+        const quizData = [
+            // --- SECTION 1: ACID-BASE BASICS & BUFFERS (10 Q) ---
+            { q: "1. What is the normal blood pH range?", ans: "7.35-7.45" },
+            { q: "2. What are substances that release hydrogen ions (H+) called?", ans: "Acids" },
+            { q: "3. What is the main base in the body, primarily regulated by the kidneys?", ans: "Bicarbonate (HCO3-)" },
+            { q: "4. Which body system is the first line of defense and acts immediately to prevent major pH changes?", ans: "Buffer Systems" },
+            { q: "5. What is the critical ratio of Bicarbonate to Carbonic Acid maintained by the buffer system?", ans: "20:1" },
+            { q: "6. Which organ system acts as the second line of defense and regulates CO2 within minutes?", ans: "Lungs" },
+            { q: "7. When the lungs sense acidosis, how do they attempt to compensate?", ans: "Increase respiratory rate (hyperventilation)" },
+            { q: "8. Which organ system acts as the third line of defense, taking hours to days to regulate HCO3-?", ans: "Kidneys" },
+            { q: "9. How do the kidneys primarily respond to alkalosis to restore balance?", ans: "Excrete HCO3- and retain H+" },
+            { q: "10. What is the relationship between CO2 (an acid) and pH?", ans: "Inverse (as CO2 increases, pH decreases)" },
+
+            // --- SECTION 2: RESPIRATORY ACIDOSIS/ALKALOSIS (20 Q) ---
+            { q: "11. Respiratory Acidosis is primarily characterized by retention of which gas?", ans: "CO2" },
+            { q: "12. What is the primary cause of Respiratory Acidosis?", ans: "Hypoventilation" },
+            { q: "13. What is a key sign of early Respiratory Acidosis?", ans: "Headache (due to cerebral vasodilation)" },
+            { q: "14. A patient with COPD experiencing an exacerbation is at high risk for which imbalance?", ans: "Respiratory Acidosis" },
+            { q: "15. What is the most critical intervention for severe Respiratory Acidosis?", ans: "Improve ventilation (e.g., BiPAP/intubation)" },
+            { q: "16. Respiratory Alkalosis is primarily characterized by excessive loss of which gas?", ans: "CO2" },
+            { q: "17. What is the primary cause of Respiratory Alkalosis?", ans: "Hyperventilation" },
+            { q: "18. A common psychological cause of Respiratory Alkalosis is:", ans: "Anxiety/Panic attacks" },
+            { q: "19. What neurological symptom is common in Respiratory Alkalosis due to cerebral vasoconstriction?", ans: "Lightheadedness/Dizziness" },
+            { q: "20. What is a common neuromuscular sign of Respiratory Alkalosis?", ans: "Tetany/Numbness and tingling" },
+            { q: "21. What is the management goal for a patient hyperventilating due to anxiety?", ans: "Slow breathing rate (e.g., breath into a paper bag)" },
+            { q: "22. A patient on mechanical ventilation is over-breathing. This places them at risk for:", ans: "Respiratory Alkalosis" },
+            { q: "23. What happens to the partial pressure of CO2 (PaCO2) in Respiratory Alkalosis?", ans: "Decreases (below 35 mmHg)" },
+            { q: "24. What happens to PaCO2 in Respiratory Acidosis?", ans: "Increases (above 45 mmHg)" },
+            { q: "25. When the kidneys attempt to compensate for respiratory acidosis, they retain:", ans: "Bicarbonate (HCO3-)" },
+            { q: "26. What drug class can suppress the respiratory drive and lead to respiratory acidosis?", ans: "Opioids (Narcotics)" },
+            { q: "27. What is the most common cause of acute Respiratory Acidosis in a hospital setting?", ans: "Airway obstruction" },
+            { q: "28. In chronic Respiratory Acidosis, the body is usually compensated by which organ?", ans: "Kidneys" },
+            { q: "29. What is the classic respiratory pattern seen in severe Metabolic Acidosis, but not in Respiratory Acidosis?", ans: "Kussmaul respirations" },
+            { q: "30. High fever, liver failure, and severe pain can sometimes lead to:", ans: "Respiratory Alkalosis" },
+            
+            // --- SECTION 3: METABOLIC ACIDOSIS/ALKALOSIS (20 Q) ---
+            { q: "31. Metabolic Acidosis is characterized by a deficit of base or an excess of:", ans: "Acid" },
+            { q: "32. What happens to the serum HCO3- in Metabolic Acidosis?", ans: "Decreases (below 22 mEq/L)" },
+            { q: "33. What are two major causes of high Anion Gap Metabolic Acidosis (MUDPILES)?", ans: "Lactic Acidosis or Ketoacidosis" },
+            { q: "34. What is the compensatory mechanism for Metabolic Acidosis?", ans: "Kussmaul respirations (deep, rapid breathing)" },
+            { q: "35. A patient with chronic kidney disease (CKD) is at high risk for:", ans: "Metabolic Acidosis" },
+            { q: "36. What is the priority intervention for severe Metabolic Acidosis?", ans: "Administer NaHCO3 (Bicarbonate)" },
+            { q: "37. A severe side effect of Metabolic Acidosis is the risk of:", ans: "Dysrhythmias/Cardiac arrest" },
+            { q: "38. Metabolic Alkalosis is characterized by an excess of base or a deficit of:", ans: "Acid" },
+            { q: "39. What happens to the serum HCO3- in Metabolic Alkalosis?", ans: "Increases (above 28 mEq/L)" },
+            { q: "40. What common GI issue is a major cause of Metabolic Alkalosis?", ans: "Vomiting or NG suction (loss of HCl)" },
+            { q: "41. What is the compensatory mechanism for Metabolic Alkalosis?", ans: "Hypoventilation (slow, shallow breathing)" },
+            { q: "42. Over-use of which common over-the-counter drugs can cause Metabolic Alkalosis?", ans: "Antacids/Bicarbonate" },
+            { q: "43. A key management strategy for Metabolic Alkalosis caused by volume loss is:", ans: "Administer NaCl/Volume replacement" },
+            { q: "44. In severe Metabolic Alkalosis, which electrolyte imbalance can cause neurological symptoms like tetany?", ans: "Hypocalcemia" },
+            { q: "45. In severe Metabolic Acidosis, what happens to the K+ level?", ans: "Hyperkalemia (K+ shifts out of cells)" },
+            { q: "46. Which type of shock is often accompanied by profound Metabolic Acidosis?", ans: "Septic/Cardiogenic Shock" },
+            { q: "47. What condition is associated with severe diarrhea and often results in Metabolic Acidosis?", ans: "Loss of Bicarbonate from the GI tract" },
+            { q: "48. The main effect of compensatory hypoventilation in Metabolic Alkalosis is to retain:", ans: "CO2" },
+            { q: "49. What is the primary concern when administering NaHCO3 (bicarbonate)?", ans: "Fluid volume overload/Heart failure" },
+            { q: "50. What is the renal compensation mechanism for Metabolic Alkalosis?", ans: "Excrete HCO3-" },
+
+            // --- SECTION 4: COMPENSATION & DIAGNOSIS (10 Q) ---
+            { q: "51. What term describes a pH that is abnormal, but the compensating system's parameter (PaCO2 or HCO3-) is also abnormal?", ans: "Partially Compensated" },
+            { q: "52. What term describes a pH that is within the normal range (7.35-7.45) but both PaCO2 and HCO3- are abnormal?", ans: "Fully Compensated" },
+            { q: "53. If the primary problem is respiratory, the compensation must be done by which organ?", ans: "Kidneys" },
+            { q: "54. If the primary problem is metabolic, the compensation must be done by which organ?", ans: "Lungs" },
+            { q: "55. If a patient has an elevated PaCO2 and an elevated HCO3-, this indicates which primary problem?", ans: "Respiratory Acidosis" },
+            { q: "56. If a patient has a decreased PaCO2 and a decreased HCO3-, this indicates which primary problem?", ans: "Metabolic Acidosis" },
+            { q: "57. If the pH is < 7.35, the patient is in a state of:", ans: "Acidosis" },
+            { q: "58. If the pH is > 7.45, the patient is in a state of:", ans: "Alkalosis" },
+            { q: "59. What term describes a state where the pH is abnormal and the compensating system is still normal?", ans: "Uncompensated" },
+            { q: "60. Which is the fastest-acting compensatory system?", ans: "Lungs" },
+
+            // --- SECTION 5: SHOCK CLASSIFICATION & SIGNS (20 Q) ---
+            { q: "61. What is the fundamental definition of shock?", ans: "Insufficient tissue perfusion" },
+            { q: "62. What is the characteristic sign shared by all types of shock?", ans: "Hypotension (Systolic BP < 90 mmHg)" },
+            { q: "63. Which major category of shock is caused by failure of the heart to pump effectively?", ans: "Cardiogenic Shock" },
+            { q: "64. Which major category of shock is caused by loss of intravascular volume (blood or fluid)?", ans: "Hypovolemic Shock" },
+            { q: "65. Which major category of shock is caused by an obstruction to blood flow (e.g., PE, tamponade)?", ans: "Obstructive Shock" },
+            { q: "66. Which major category of shock is characterized by massive vasodilation leading to maldistribution of blood flow?", ans: "Distributive Shock" },
+            { q: "67. Which type of Distributive Shock is caused by a severe allergic reaction?", ans: "Anaphylactic Shock" },
+            { q: "68. Which type of Distributive Shock is caused by a spinal cord injury or head trauma?", ans: "Neurogenic Shock" },
+            { q: "69. Which type of Distributive Shock is caused by a massive infection?", ans: "Septic Shock" },
+            { q: "70. In Hypovolemic Shock, what happens to the patient's Heart Rate (HR)?", ans: "Increases (Tachycardia)" },
+            { q: "71. In Neurogenic Shock, the patient often exhibits which specific HR pattern?", ans: "Bradycardia (Slow HR)" },
+            { q: "72. Which type of shock causes the skin to initially be warm and flushed?", ans: "Septic Shock (Early phase)" },
+            { q: "73. What happens to the Central Venous Pressure (CVP) in Hypovolemic Shock?", ans: "Decreases (Low CVP)" },
+            { q: "74. What is the primary problem in Cardiogenic Shock?", ans: "Decreased Cardiac Output (CO)" },
+            { q: "75. A patient presenting with muffled heart sounds, hypotension, and JVD likely has which obstructive problem?", ans: "Cardiac Tamponade" },
+            { q: "76. What is the earliest reversible stage of shock?", ans: "Compensatory Stage" },
+            { q: "77. During the Compensatory Stage, the body releases which hormones to increase HR and BP?", ans: "Norepinephrine/Epinephrine" },
+            { q: "78. What is the irreversible stage of shock where all organ systems fail?", ans: "Refractory Stage" },
+            { q: "79. In the Progressive Stage of shock, mental status typically declines into:", ans: "Lethargy/Deterioration" },
+            { q: "80. What is the result of insufficient tissue perfusion in shock on a cellular level?", ans: "Anaerobic metabolism and lactic acid production" },
+
+            // --- SECTION 6: SHOCK MANAGEMENT & INTERVENTIONS (20 Q) ---
+            { q: "81. What is the absolute priority when caring for a patient in shock?", ans: "Airway, Breathing, Circulation (ABCs)" },
+            { q: "82. What is the primary treatment for Hypovolemic Shock?", ans: "IV fluids (Crystalloids) and Blood transfusion" },
+            { q: "83. For Septic Shock, what is the priority intervention after obtaining blood cultures?", ans: "Start broad-spectrum antibiotics" },
+            { q: "84. Which medication is the immediate, life-saving intervention for Anaphylactic Shock?", ans: "IM Epinephrine" },
+            { q: "85. In Cardiogenic Shock, which class of drugs is often used to improve contractility?", ans: "Inotropes" },
+            { q: "86. Which type of shock requires stabilizing the spinal cord as a priority?", ans: "Neurogenic Shock" },
+            { q: "87. What is the goal urine output for a patient being aggressively managed for shock?", ans: "> 0.5 mL/kg/hr" },
+            { q: "88. What is a common GI complication of shock due to mucosal ischemia?", ans: "Paralytic ileus/Risk of ulcers/bleeding" },
+            { q: "89. The goal in treating Obstructive Shock is to:", ans: "Relieve the obstruction" },
+            { q: "90. Why do patients in shock develop Metabolic Acidosis?", ans: "Lactic acid buildup from anaerobic metabolism" },
+            { q: "91. What is a key sign of the early Compensatory Stage that indicates a need for intervention?", ans: "Tachycardia" },
+            { q: "92. What is the major fluid replacement type used in the initial management of most shock states?", ans: "Crystalloids (Normal Saline or Lactated Ringer's)" },
+            { q: "93. Which vasopressor is commonly used to treat hypotension in Septic Shock?", ans: "Norepinephrine" },
+            { q: "94. Which specific shock type is often treated with Atropine due to severe bradycardia?", ans: "Neurogenic Shock" },
+            { q: "95. During the Compensatory Stage, the body attempts to shunt blood away from which organs?", ans: "GI tract, Kidneys, Skin" },
+            { q: "96. What is the primary difference in skin temperature between early Septic Shock and Hypovolemic Shock?", ans: "Septic is warm/flushed; Hypovolemic is cool/clammy" },
+            { q: "97. What is a key assessment finding for a patient in the Progressive Stage related to kidney function?", ans: "Oliguria (low urine output)" },
+            { q: "98. Which intervention is crucial for all types of shock to maximize oxygen delivery?", ans: "High-flow oxygen" },
+            { q: "99. In Cardiogenic Shock, why are diuretics sometimes used?", ans: "To reduce preload/volume in the lungs" },
+            { q: "100. What is the main cause of the life-threatening hypotension in Neurogenic Shock?", ans: "Loss of sympathetic vasoconstrictor tone" }
+        ];
+
+        const quizForm = document.getElementById('quiz-form');
+        const scoreDisplayElement = document.getElementById('current-score');
+        const resultsArea = document.getElementById('results-area');
+        const scoreFinalDisplay = document.getElementById('score-display');
+        const incompleteMessage = document.getElementById('incomplete-message');
+
+        /**
+         * Generates four randomized, but distinct, options for a given question.
+         * @param {string} correctAnswer - The correct answer.
+         * @returns {string[]} An array of four options.
+         */
+        function generateOptions(correctAnswer) {
+            const allPossibleAnswers = [
+                "7.35-7.45", "6.50-7.00", "7.00-7.35", "Acids", "Bases", "Buffers", "Bicarbonate (HCO3-)", "Carbonic Acid (H2CO3)",
+                "Buffer Systems", "Lungs", "Kidneys", "Liver", "20:1", "10:1", "Increase respiratory rate (hyperventilation)", "Decrease respiratory rate (hypoventilation)",
+                "Hypoventilation", "Hyperventilation", "CO2", "O2", "Headache (due to cerebral vasodilation)", "Tetany/Numbness and tingling",
+                "Opioids (Narcotics)", "Diuretics", "Airway obstruction", "Pneumonia", "Kussmaul respirations", "Cheyne-Stokes respirations",
+                "Metabolic Acidosis", "Respiratory Acidosis", "Metabolic Alkalosis", "Respiratory Alkalosis", "Acid", "Base",
+                "Lactic Acidosis or Ketoacidosis", "Hypercalcemia", "Administer NaHCO3 (Bicarbonate)", "Administer Hypertonic Saline",
+                "Dysrhythmias/Cardiac arrest", "Hypocalcemia", "Vomiting or NG suction (loss of HCl)", "Diarrhea", "Antacids/Bicarbonate",
+                "Administer NaCl/Volume replacement", "Hyperkalemia (K+ shifts out of cells)", "Fluid volume overload/Heart failure",
+                "Uncompensated", "Partially Compensated", "Fully Compensated", "Lungs", "Kidneys",
+                "Insufficient tissue perfusion", "Tachycardia (HR < 60)", "Hypotension (Systolic BP < 90 mmHg)",
+                "Cardiogenic Shock", "Hypovolemic Shock", "Obstructive Shock", "Distributive Shock", "Anaphylactic Shock", "Neurogenic Shock", "Septic Shock",
+                "Increases (Tachycardia)", "Bradycardia (Slow HR)", "Septic Shock (Early phase)", "Hypovolemic Shock (Early phase)",
+                "Compensatory Stage", "Progressive Stage", "Refractory Stage", "Norepinephrine/Epinephrine", "Glucocorticoids/Mineralocorticoids",
+                "Airway, Breathing, Circulation (ABCs)", "IV fluids (Crystalloids) and Blood transfusion", "Start broad-spectrum antibiotics", "IM Epinephrine", "Inotropes",
+                "> 0.5 mL/kg/hr", "Paralytic ileus/Risk of ulcers/bleeding", "Relieve the obstruction", "Lactic acid buildup from anaerobic metabolism",
+                "Crystalloids (Normal Saline or Lactated Ringer's)", "Norepinephrine", "Atropine", "Loss of sympathetic vasoconstrictor tone"
+            ];
+
+            let options = new Set();
+            options.add(correctAnswer);
+
+            // Add three unique incorrect options
+            while (options.size < 4) {
+                const randomIndex = Math.floor(Math.random() * allPossibleAnswers.length);
+                const potentialOption = allPossibleAnswers[randomIndex];
+                // Only add if it's not the correct answer AND not already in the set
+                if (!options.has(potentialOption)) { 
+                    options.add(potentialOption);
+                }
+            }
+
+            // Convert set to array and shuffle
+            let optionsArray = Array.from(options);
+            for (let i = optionsArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [optionsArray[i], optionsArray[j]] = [optionsArray[j], optionsArray[i]];
+            }
+            return optionsArray;
+        }
+
+        /**
+         * Provides instant feedback, updates the score, and locks the question.
+         * @param {number} qIndex - The index of the question in quizData.
+         * @param {string} selectedValue - The value of the selected option.
+         */
+        function checkAnswer(qIndex, selectedValue) {
+            if (answeredQuestions.has(qIndex)) return; // Prevent double-checking
+
+            const correct = quizData[qIndex].ans;
+            const block = document.getElementById(`q-${qIndex}`);
+            const options = block.querySelectorAll('.option-label');
+            let isCorrect = (selectedValue === correct);
+
+            // 1. Give visual feedback
+            options.forEach(label => {
+                const span = label.querySelector('span');
+                const input = label.querySelector('input');
+                const optionValue = input.value;
+
+                // Highlight the correct answer
+                if (optionValue === correct) {
+                    span.classList.add('correct-answer');
+                }
+                
+                // Highlight the selected answer if it's wrong
+                if (optionValue === selectedValue && !isCorrect) {
+                    span.classList.add('wrong-answer');
+                }
+
+                // 2. Lock the input
+                input.disabled = true;
+            });
+
+            // 3. Update score and track question state
+            if (isCorrect) {
+                currentScore++;
+            }
+            answeredQuestions.add(qIndex);
+            
+            // 4. Update score display
+            scoreDisplayElement.textContent = currentScore;
+        }
+
+        /**
+         * Renders the quiz questions and options dynamically into the form.
+         */
+        function renderQuiz() {
+            quizForm.innerHTML = '';
+            currentScore = 0;
+            answeredQuestions.clear();
+            scoreDisplayElement.textContent = currentScore;
+
+            quizData.forEach((q, index) => {
+                const questionNumber = index + 1;
+                const options = generateOptions(q.ans);
+
+                const questionElement = document.createElement('div');
+                questionElement.className = 'question-block p-4 bg-white border border-gray-200 rounded-lg shadow-sm';
+                questionElement.setAttribute('data-q-index', index);
+                questionElement.id = `q-${index}`;
+
+                // Question Title
+                let html = `<p class="text-md font-semibold text-gray-800 mb-3">${q.q}</p>`;
+
+                // Options
+                html += '<div class="space-y-2">';
+                options.forEach((option, optionIndex) => {
+                    const radioId = `q${questionNumber}-opt${optionIndex}`;
+                    // Added onchange handler to call checkAnswer instantly
+                    html += `
+                        <label for="${radioId}" class="option-label flex items-center cursor-pointer">
+                            <input type="radio" id="${radioId}" name="question${index}" value="${option}" class="hidden" 
+                                onchange="checkAnswer(${index}, this.value)">
+                            <span class="flex-grow p-2 border-2 border-gray-300 rounded-md transition duration-150 text-gray-700 hover:bg-gray-50">
+                                ${option}
+                            </span>
+                        </label>
+                    `;
+                });
+                html += '</div>';
+
+                questionElement.innerHTML = html;
+                quizForm.appendChild(questionElement);
+            });
+
+            resultsArea.classList.add('hidden');
+        }
+
+        /**
+         * Checks progress and displays the final results.
+         */
+        function displayFinalResults() {
+            const percentage = ((currentScore / totalQuestions) * 100).toFixed(0);
+
+            if (answeredQuestions.size < totalQuestions) {
+                incompleteMessage.classList.remove('hidden');
+                // Scroll to the first unanswered question if possible
+                for (let i = 0; i < totalQuestions; i++) {
+                    if (!answeredQuestions.has(i)) {
+                        document.getElementById(`q-${i}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        break;
+                    }
+                }
+                return;
+            } else {
+                incompleteMessage.classList.add('hidden');
+            }
+            
+            let feedbackMessage = '';
+            if (percentage >= 90) {
+                feedbackMessage = `<span class="text-green-600 font-bold">MASTERED! 💯</span> You finished with ${currentScore} out of ${totalQuestions} (${percentage}%). Excellent performance!`;
+            } else if (percentage >= 70) {
+                feedbackMessage = `<span class="text-amber-600 font-bold">Solid Effort! 💪</span> You finished with ${currentScore} out of ${totalQuestions} (${percentage}%). You're very close!`;
+            } else {
+                feedbackMessage = `<span class="text-red-600 font-bold">Needs Review! 📚</span> You finished with ${currentScore} out of ${totalQuestions} (${percentage}%). Let's go over the material again.`;
+            }
+            
+            scoreFinalDisplay.innerHTML = feedbackMessage;
+            resultsArea.classList.remove('hidden');
+            // Scroll to the results area
+            resultsArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        /**
+         * Resets the quiz state to allow the user to try again.
+         */
+        function resetQuiz() {
+            renderQuiz();
+            // Scroll to the top of the quiz
+            document.getElementById('quiz-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Initialize the quiz when the page loads
+        window.onload = renderQuiz;
+    </script>
+</body>
+</html>
