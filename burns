@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>50-Question Burn Injury Master Quiz (Instant Feedback)</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the app */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fef2f2; /* Light, warm red background */
+        }
+        /* Style for the question options (radio buttons) */
+        .option-label input[type="radio"]:checked + span {
+            border-color: #ef4444; /* Red border when selected */
+            background-color: #fee2e2;
+        }
+        .correct-answer {
+            background-color: #d1fae5; /* Light green for correct */
+            border-color: #10b981 !important;
+            font-weight: 600;
+        }
+        .wrong-answer {
+            background-color: #fee2e2; /* Light red for incorrect */
+            border-color: #ef4444 !important;
+        }
+        .question-block {
+            scroll-margin-top: 120px; /* Offset for smooth scrolling */
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-8 flex justify-center items-start">
+
+    <div id="quiz-container" class="w-full max-w-4xl bg-white shadow-2xl rounded-xl p-6 sm:p-10 my-8">
+        <!-- Title and Introduction (Sticky Header) -->
+        <header class="mb-8 text-center border-b pb-4 sticky top-0 bg-white z-10 rounded-t-xl shadow-lg p-4">
+            <h1 class="text-3xl font-extrabold text-red-700">Burn Injury Master Challenge</h1>
+            <p class="mt-2 text-gray-600">50 questions on depth, extent, resuscitation, and care.</p>
+
+            <!-- Instant Score Display -->
+            <div class="mt-4 text-xl font-bold">
+                Score: <span id="current-score" class="text-red-600">0</span> / 50
+            </div>
+        </header>
+
+        <!-- Quiz Questions Area -->
+        <form id="quiz-form" class="space-y-4 mb-8">
+            <!-- Questions will be rendered here by JavaScript -->
+        </form>
+
+        <!-- Final Results Button -->
+        <div class="flex justify-center sticky bottom-0 bg-white p-4 border-t border-gray-200 rounded-b-xl shadow-lg">
+            <button id="submit-btn" type="button" onclick="displayFinalResults()"
+                    class="w-full sm:w-auto px-10 py-3 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition duration-300 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-red-300 active:bg-red-800">
+                Show Final Results
+            </button>
+        </div>
+
+        <!-- Feedback and Results Area -->
+        <div id="results-area" class="mt-8 pt-6 border-t border-gray-200 hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Final Results Summary</h2>
+            <p id="score-display" class="text-center text-xl font-semibold mb-6"></p>
+
+            <div class="flex justify-center">
+                <button onclick="resetQuiz()"
+                        class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
+                    Start New Quiz
+                </button>
+            </div>
+            <p id="incomplete-message" class="text-center text-red-500 mt-4 hidden">You still have questions unanswered!</p>
+        </div>
+    </div>
+
+    <script>
+        // Global state for instant scoring
+        let currentScore = 0;
+        const totalQuestions = 50;
+        let answeredQuestions = new Set();
+
+        const quizData = [
+            // --- SECTION 1: CLASSIFICATION BY DEPTH (10 Q) ---
+            { q: "1. Which key feature is characteristic of a Full-Thickness burn related to sensation?", ans: "Painless (due to nerve destruction)" },
+            { q: "2. A burn that involves the epidermis and only the upper dermis is classified as:", ans: "Superficial partial-thickness" },
+            { q: "3. Which classification requires skin grafting for healing?", ans: "Full-thickness" },
+            { q: "4. What is the typical healing time for a Superficial partial-thickness burn?", ans: "~2 weeks" },
+            { q: "5. A burn described as red/white with less blanching, involving the epidermis and deeper dermis, is classified as:", ans: "Deep partial-thickness" },
+            { q: "6. What are two tissue types that may be involved in a severe Full-Thickness burn?", ans: "Muscle and Bone" },
+            { q: "7. The appearance of a Full-Thickness burn is typically:", ans: "Dry, leathery, and white or charred" },
+            { q: "8. A painful, red, and blanching burn that heals quickly is most likely a:", ans: "Superficial partial-thickness" },
+            { q: "9. Which layer contains the pain receptors destroyed in a full-thickness injury?", ans: "Dermis" },
+            { q: "10. What does the term 'Full-Thickness' imply about the skin layers involved?", ans: "Entire epidermis and dermis" },
+
+            // --- SECTION 2: EXTENT & PATHOPHYSIOLOGY (20 Q) ---
+            { q: "11. A systemic response to burn injury occurs when the Total Body Surface Area (TBSA) burned exceeds:", ans: "20% TBSA" },
+            { q: "12. What is the preferred method for estimating TBSA in infants and children due to age-related proportions?", ans: "Lund-Browder Chart" },
+            { q: "13. The Palmar method, used for scattered burns, estimates the patient's palm surface area as approximately what percentage of TBSA?", ans: "1% TBSA" },
+            { q: "14. What is the primary pathophysiologic event leading to burn shock?", ans: "Massive fluid loss and capillary leak" },
+            { q: "15. Which electrolyte imbalance is seen immediately after a major burn injury due to cell lysis?", ans: "Early hyperkalemia" },
+            { q: "16. Which electrolyte imbalance is often seen later in the acute phase due to massive fluid shifting and dilution?", ans: "Hyponatremia" },
+            { q: "17. In the Rule of Nines for adults, what percentage is assigned to the entire anterior trunk (chest and abdomen)?", ans: "18%" },
+            { q: "18. In the Rule of Nines for adults, what percentage is assigned to one entire arm (front and back)?", ans: "9%" },
+            { q: "19. What critical consequence does the loss of skin integrity pose for thermoregulation?", ans: "Hypothermia" },
+            { q: "20. What happens to the Cardiac Output (CO) during the initial phase of burn shock?", ans: "Decreases (Hypovolemia)" },
+            { q: "21. The release of which substances causes massive capillary leak and edema in systemic burn injury?", ans: "Cytokines and inflammatory mediators" },
+            { q: "22. The entire head and neck of an adult is assigned what percentage in the Rule of Nines?", ans: "9%" },
+            { q: "23. The total TBSA for the entire anterior and posterior trunk combined in the Rule of Nines is:", ans: "36%" },
+            { q: "24. What common GI complication is associated with decreased perfusion to the abdominal organs in severe burn shock?", ans: "Paralytic ileus" },
+            { q: "25. Which type of burn injury is often caused by exposure to electrical current?", ans: "Full-thickness (potentially involving deep tissue)" },
+            { q: "26. What is the primary underlying cause of the risk of infection in burn patients?", ans: "Loss of the skin's protective barrier" },
+            { q: "27. In the acute phase, the swelling caused by fluid moving from the intravascular space to the interstitial space is termed:", ans: "Edema" },
+            { q: "28. The risk of shock is most significant in burns affecting greater than:", ans: "20% TBSA" },
+            { q: "29. Why is the early hyperkalemia a critical concern?", ans: "Risk of cardiac dysrhythmias" },
+            { q: "30. The body's initial response to burns $<20\%$ TBSA is described as a:", ans: "Local response" },
+
+            // --- SECTION 3: FLUID RESUSCITATION & MANAGEMENT (20 Q) ---
+            { q: "31. Which formula is most commonly used to calculate fluid resuscitation needs in adults with greater than 20% TBSA burns?", ans: "Parkland (Baxter) Formula" },
+            { q: "32. What is the preferred fluid (crystalloid) used in the Parkland formula for burn resuscitation?", ans: "Lactated Ringer's (LR)" },
+            { q: "33. What is the constant (in mL/kg/%TBSA) used in the Parkland formula?", ans: "4 mL" },
+            { q: "34. How much of the calculated total 24-hour fluid volume must be administered in the first 8 hours post-burn?", ans: "One-half (1/2) of the total volume" },
+            { q: "35. The remaining half of the fluid volume is administered over the next how many hours?", ans: "16 hours" },
+            { q: "36. What is the critical end-point (clinical indicator) of successful fluid resuscitation?", ans: "Adequate Urine Output (UO)" },
+            { q: "37. What is the minimum acceptable hourly urine output (UO) goal for an adult burn patient during the resuscitation phase?", ans: "0.5 mL/kg/hr" },
+            { q: "38. What is the most critical immediate assessment for a patient who sustained a burn to the face, neck, or chest?", ans: "Airway and breathing assessment" },
+            { q: "39. Why are colloids (like albumin) typically avoided in the first 12-24 hours of burn resuscitation?", ans: "Capillaries are still leaking, leading to colloid loss into the interstitium" },
+            { q: "40. In the emergent phase of care, what is the primary nursing goal related to the wounds?", ans: "Covering the burn wound with a clean, dry sheet" },
+            { q: "41. What is the immediate intervention for a chemical burn?", ans: "Continuous copious irrigation with water" },
+            { q: "42. What is the long-term complication often associated with Full-Thickness burns that heal (or are grafted)?", ans: "Scarring and contractures" },
+            { q: "43. Why is it important to monitor blood glucose levels in major burn patients?", ans: "Increased metabolic demands and stress hormones can cause hyperglycemia" },
+            { q: "44. The priority management for circumferential full-thickness burns on an extremity is the risk of:", ans: "Compartment Syndrome" },
+            { q: "45. What nutritional state is induced by the hypermetabolic response after a major burn?", ans: "Catabolic state (protein breakdown)" },
+            { q: "46. What type of burn is caused by radiation (e.g., prolonged sun exposure or cancer therapy)?", ans: "Superficial or Superficial partial-thickness" },
+            { q: "47. Which procedure is performed to relieve pressure and restore circulation in circumferential deep burns?", ans: "Escharotomy" },
+            { q: "48. What is the primary concern when managing a patient with early hypothermia?", ans: "Warming the patient and preventing further heat loss" },
+            { q: "49. In the acute phase, aggressive nutrition (enteral feeding) is initiated to meet the patient's heightened:", ans: "Metabolic demands" },
+            { q: "50. What is a key psychological complication that may require long-term support for the patient?", ans: "Altered appearance/Body image issues" }
+        ];
+
+        const quizForm = document.getElementById('quiz-form');
+        const scoreDisplayElement = document.getElementById('current-score');
+        const resultsArea = document.getElementById('results-area');
+        const scoreFinalDisplay = document.getElementById('score-display');
+        const incompleteMessage = document.getElementById('incomplete-message');
+
+        /**
+         * Generates four randomized, but distinct, options for a given question.
+         * @param {string} correctAnswer - The correct answer.
+         * @returns {string[]} An array of four options.
+         */
+        function generateOptions(correctAnswer) {
+            const allPossibleAnswers = [
+                "Painless (due to nerve destruction)", "Very painful (exposed nerve endings)", "Superficial partial-thickness", "Deep partial-thickness", 
+                "Full-thickness", "Topical antibiotic cream", "Skin grafting", "Bandaging", "20% TBSA", "50% TBSA", 
+                "Rule of Nines", "Lund-Browder Chart", "Palmar method", "5% TBSA", "1% TBSA", 
+                "Massive fluid loss and capillary leak", "Severe infection", "Early hyperkalemia", "Early hypokalemia", "Hyponatremia", 
+                "Hypercalcemia", "Lactated Ringer's (LR)", "Dextrose 5% in Water (D5W)", "Normal Saline (NS)", "One-half (1/2) of the total volume", 
+                "The entire volume", "24 hours", "48 hours", "Decreases (Hypovolemia)", "Increases (Hyperdynamic)", 
+                "Dry, leathery, and white or charred", "Red, painful, and wet", "18%", "9%", "1%", "Hypothermia", "Hyperthermia",
+                "Edema", "Vasoconstriction", "Dermis", "Epidermis", "2 weeks", "6 weeks", 
+                "Airway and breathing assessment", "IV insertion", "Compartment Syndrome", "Risk of infection", 
+                "4 mL", "2 mL", "0.5 mL/kg/hr", "1 mL/kg/hr", "Continuous copious irrigation with water", "Neutralizing agent application",
+                "Muscle and Bone", "Scarring and contractures", "Hypermetabolic demands", "Catabolic state (protein breakdown)",
+                "Escharotomy", "Fasciotomy", "Cytokines and inflammatory mediators", "Mast cell stabilizers"
+            ];
+
+            let options = new Set();
+            options.add(correctAnswer);
+
+            // Add three unique incorrect options
+            while (options.size < 4) {
+                const randomIndex = Math.floor(Math.random() * allPossibleAnswers.length);
+                const potentialOption = allPossibleAnswers[randomIndex];
+                // Only add if it's not the correct answer AND not already in the set
+                if (!options.has(potentialOption)) {
+                    options.add(potentialOption);
+                }
+            }
+
+            // Convert set to array and shuffle
+            let optionsArray = Array.from(options);
+            for (let i = optionsArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [optionsArray[i], optionsArray[j]] = [optionsArray[j], optionsArray[i]];
+            }
+            return optionsArray;
+        }
+
+        /**
+         * Provides instant feedback, updates the score, and locks the question.
+         * @param {number} qIndex - The index of the question in quizData.
+         * @param {string} selectedValue - The value of the selected option.
+         */
+        function checkAnswer(qIndex, selectedValue) {
+            if (answeredQuestions.has(qIndex)) return; // Prevent double-checking
+
+            const correct = quizData[qIndex].ans;
+            const block = document.getElementById(`q-${qIndex}`);
+            const options = block.querySelectorAll('.option-label');
+            let isCorrect = (selectedValue === correct);
+
+            // 1. Give visual feedback
+            options.forEach(label => {
+                const span = label.querySelector('span');
+                const input = label.querySelector('input');
+                const optionValue = input.value;
+
+                // Highlight the correct answer
+                if (optionValue === correct) {
+                    span.classList.add('correct-answer');
+                }
+
+                // Highlight the selected answer if it's wrong
+                if (optionValue === selectedValue && !isCorrect) {
+                    span.classList.add('wrong-answer');
+                }
+
+                // 2. Lock the input
+                input.disabled = true;
+            });
+
+            // 3. Update score and track question state
+            if (isCorrect) {
+                currentScore++;
+            }
+            answeredQuestions.add(qIndex);
+
+            // 4. Update score display
+            scoreDisplayElement.textContent = currentScore;
+        }
+
+        /**
+         * Renders the quiz questions and options dynamically into the form.
+         */
+        function renderQuiz() {
+            quizForm.innerHTML = '';
+            currentScore = 0;
+            answeredQuestions.clear();
+            scoreDisplayElement.textContent = currentScore;
+
+            quizData.forEach((q, index) => {
+                const questionNumber = index + 1;
+                const options = generateOptions(q.ans);
+
+                const questionElement = document.createElement('div');
+                questionElement.className = 'question-block p-4 bg-white border border-gray-200 rounded-lg shadow-sm';
+                questionElement.setAttribute('data-q-index', index);
+                questionElement.id = `q-${index}`;
+
+                // Question Title
+                let html = `<p class="text-md font-semibold text-gray-800 mb-3">${q.q}</p>`;
+
+                // Options
+                html += '<div class="space-y-2">';
+                options.forEach((option, optionIndex) => {
+                    const radioId = `q${questionNumber}-opt${optionIndex}`;
+                    // Added onchange handler to call checkAnswer instantly
+                    html += `
+                        <label for="${radioId}" class="option-label flex items-center cursor-pointer">
+                            <input type="radio" id="${radioId}" name="question${index}" value="${option}" class="hidden"
+                                onchange="checkAnswer(${index}, this.value)">
+                            <span class="flex-grow p-2 border-2 border-gray-300 rounded-md transition duration-150 text-gray-700 hover:bg-gray-50">
+                                ${option}
+                            </span>
+                        </label>
+                    `;
+                });
+                html += '</div>';
+
+                questionElement.innerHTML = html;
+                quizForm.appendChild(questionElement);
+            });
+
+            resultsArea.classList.add('hidden');
+        }
+
+        /**
+         * Checks progress and displays the final results.
+         */
+        function displayFinalResults() {
+            const percentage = ((currentScore / totalQuestions) * 100).toFixed(0);
+
+            if (answeredQuestions.size < totalQuestions) {
+                incompleteMessage.classList.remove('hidden');
+                // Scroll to the first unanswered question if possible
+                for (let i = 0; i < totalQuestions; i++) {
+                    if (!answeredQuestions.has(i)) {
+                        document.getElementById(`q-${i}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        break;
+                    }
+                }
+                return;
+            } else {
+                incompleteMessage.classList.add('hidden');
+            }
+
+            let feedbackMessage = '';
+            if (percentage >= 90) {
+                feedbackMessage = `<span class="text-green-600 font-bold">MASTERED! 💯</span> You finished with ${currentScore} out of ${totalQuestions} (${percentage}%). Excellent performance!`;
+            } else if (percentage >= 70) {
+                feedbackMessage = `<span class="text-amber-600 font-bold">Solid Effort! 💪</span> You finished with ${currentScore} out of ${totalQuestions} (${percentage}%). You've covered the critical ground!`;
+            } else {
+                feedbackMessage = `<span class="text-red-600 font-bold">Needs Review! 📚</span> You finished with ${currentScore} out of ${totalQuestions} (${percentage}%). Focus on the core concepts again.`;
+            }
+
+            scoreFinalDisplay.innerHTML = feedbackMessage;
+            resultsArea.classList.remove('hidden');
+            // Scroll to the results area
+            resultsArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        /**
+         * Resets the quiz state to allow the user to try again.
+         */
+        function resetQuiz() {
+            renderQuiz();
+            // Scroll to the top of the quiz
+            document.getElementById('quiz-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Initialize the quiz when the page loads
+        window.onload = renderQuiz;
+    </script>
+</body>
+</html>
